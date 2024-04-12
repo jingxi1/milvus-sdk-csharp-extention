@@ -23,12 +23,15 @@ namespace Milvus.Tests
             //建立Collection
             var collection = await db.CreateCollectionAsync("test", colSchema);
             //建立資料
-            var data = Enumerable.Range(0, 1000).Select(x => new
-            {
-                art_id = x,
-                art_des = $"test{x}case",
-                art_vector = ""
-            }).ToList();
+            var data = Enumerable
+                .Range(0, 1000)
+                .Select(x => new
+                {
+                    art_id = x,
+                    art_des = $"test{x}case",
+                    art_vector = ""
+                })
+                .ToList();
 
             //將資料加入Collection
             var datawithEmb = colSchema
