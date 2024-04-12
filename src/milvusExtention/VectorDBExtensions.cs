@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 
 using Milvus.Client;
 namespace Milvus;
+public record ClientProfile(string host, int port, bool UseSsl);
 public static class MilvusExtensions
 {
     /// <summary>
@@ -15,6 +16,10 @@ public static class MilvusExtensions
     public static MilvusClient BuildClient(string host = "11.11.11.160", int port = 19530, bool UseSsl = false)
     {
         return new MilvusClient(host, port, UseSsl);
+    }
+    public static MilvusClient BuildClient(this ClientProfile profile)
+    {
+        return new MilvusClient(profile.host, profile.port, profile.UseSsl);
     }
     /// <summary>
     /// 针对集合创建索引并加载
