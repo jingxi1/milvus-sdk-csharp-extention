@@ -233,10 +233,10 @@ public static class MilvusExtensions
     /// <param name="vectorData"></param>
     /// <param name="limit"></param>
     /// <returns></returns>
-    public static Task<SearchResults> SearchResultsAsync(this MilvusCollection collection, string vField, float[] vectorData, int limit = 1)
+    public static Task<SearchResults> SearchResultsAsync(this MilvusCollection collection, string vField, long[] vectorData, int limit = 1)
     {
         return collection.SearchAsync(vField,
-              new ReadOnlyMemory<float>[] { vectorData }, SimilarityMetricType.Ip, limit);
+              new ReadOnlyMemory<long>[] { vectorData }, SimilarityMetricType.Ip, limit);
     }
     /// <summary>
     /// 查询结果,根据向量查询结果,对结果对应索引数据进行查询
@@ -273,7 +273,7 @@ public static class MilvusExtensions
     /// <param name="vectorData"></param>
     /// <param name="limit"></param>
     /// <returns></returns>
-    public static async Task<List<string>> SearchAndQueryResultsAsync(this MilvusCollection collection, string vField, string idField, string desField, float[] vectorData, int limit = 1)
+    public static async Task<List<string>> SearchAndQueryResultsAsync(this MilvusCollection collection, string vField, string idField, string desField, long[] vectorData, int limit = 1)
     {
         return await collection.SearchResultsAsync(vField, vectorData, limit).QueryResultsAsync(idField, desField, collection);
     }

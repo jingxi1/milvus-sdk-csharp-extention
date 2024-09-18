@@ -50,7 +50,7 @@ namespace Milvus.Tests
 
         }
 
-        private static float[] embFunc(string q)
+        private static long[] embFunc(string q)
            => [new Random().Next(), 2, 3, 4, 5, new Random().Next()];
         [TestMethod]
         public async Task VDB_Access()
@@ -61,15 +61,15 @@ namespace Milvus.Tests
             var clname = await db.ListCollectionsAsync();
             clname.ToList().ForEach(x => x.Name.DebugWriteLine());
             var r = db.GetCollection("book");
-            //.SearchAndQueryResultsAsync("book_intro", "book_id", "book_name", embFunc("txt"),10);
-            //   r.DebugJsonWriteLine();
-            await searchQuery(r);
-
+            //var rr= await r.SearchAndQueryResultsAsync("art_vector", "art_id", "art_des", embFunc("txt"),2);
+            //   rr.DebugJsonWriteLine();
+            //  await VQuery(r);
+            await VSearch(r);
 
         }
-
-        private async Task searchQuery(MilvusCollection collection)
+        private async Task VSearch(MilvusCollection collection)
         {
+            //Search
             List<string> search_output_fields = new() { "book_id" };
             List<List<float>> search_vectors = new() { new() { 0.1f, 0.2f } };
             SearchResults searchResult = await collection.SearchAsync(
@@ -77,13 +77,27 @@ namespace Milvus.Tests
                 new ReadOnlyMemory<float>[] { new[] { 0.1f, 0.2f } },
                 SimilarityMetricType.L2,
                 limit: 2);
+            searchResult.DebugJsonWriteLine();
+        }
+
+        private async Task VQuery(MilvusCollection collection)
+        {
+            //List<string> search_output_fields = new() { "book_id" };
+            //List<List<float>> search_vectors = new() { new() { 0.1f, 0.2f } };
+            //SearchResults searchResult = await collection.SearchAsync(
+            //    "book_intro",
+            //    new ReadOnlyMemory<float>[] { new[] { 0.1f, 0.2f } },
+            //    SimilarityMetricType.L2,
+            //    limit: 2);
 
             // Query
-            string expr = "book_id in [2,4,6,8]";
+            string expr = "book_id in [2,4,6,8,10,12]";
 
             QueryParameters queryParameters = new();
             queryParameters.OutputFields.Add("book_id");
             queryParameters.OutputFields.Add("word_count");
+            queryParameters.OutputFields.Add("book_name");
+
 
             IReadOnlyList<FieldData> queryResult = await collection.QueryAsync(
                 expr,
@@ -92,8 +106,9 @@ namespace Milvus.Tests
             queryResult.ToList().ForEach(x =>
             {
                 //  Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(x));
-                System.Text.Json.JsonSerializer.Serialize(x).DebugWriteLine();
+                //   System.Text.Json.JsonSerializer.Serialize(x).DebugWriteLine();
 
+                x.ToJsonNode().DebugWriteLine();
 
             });
         }
