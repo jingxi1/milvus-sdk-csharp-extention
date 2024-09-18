@@ -9,7 +9,7 @@ namespace Milvus.Tests
         {
             Random Random = new Random();
             //建立連線
-            var db = new Milvus.ClientProfile("11.11.11.160", 19530, false).BuildClient();
+            var db = new Milvus.ClientProfile("192.168.9.8", 19530, false).BuildClient();
             //檢查連線是否正常
             await db.IsHealthyAsync();
             //建立Collection
@@ -21,7 +21,7 @@ namespace Milvus.Tests
                    .AddCreateCollectionFields(FieldSchema.CreateFloatVector("art_vector", 6));
 
             //建立Collection
-            var collection = await db.CreateCollectionAsync("test", colSchema);
+            var collection = await db.CreateCollectionAsync("test_" + DateTimeOffset.Now.ToUnixTimeSeconds().ToString(), colSchema);
             //建立資料
             var data = Enumerable
                 .Range(0, 1000)
