@@ -60,36 +60,30 @@ namespace Milvus.Tests
             await db.IsHealthyAsync();
             var clname = await db.ListCollectionsAsync();
             clname.ToList().ForEach(x => x.Name.DebugWriteLine());
+
             var r = db.GetCollection("book");
-            //var rr= await r.SearchAndQueryResultsAsync("art_vector", "art_id", "art_des", embFunc("txt"),2);
-            //   rr.DebugJsonWriteLine();
-            //  await VQuery(r);
+
+            "-----------".DebugWriteLine();
             await VSearch(r);
+            "-----------".DebugWriteLine();
+            //  await VQuery(r);
 
         }
         private async Task VSearch(MilvusCollection collection)
         {
             //Search
-            List<string> search_output_fields = new() { "book_id" };
-            List<List<float>> search_vectors = new() { new() { 0.1f, 0.2f } };
+            //  List<string> search_output_fields = new() { "book_id","book_name" };
+            // List<List<float>> search_vectors = new() { new() { 0.5f, 0.2f } };
             SearchResults searchResult = await collection.SearchAsync(
                 "book_intro",
-                new ReadOnlyMemory<float>[] { new[] { 0.1f, 0.2f } },
+                new ReadOnlyMemory<float>[] { new[] { 932108698f, 757030336f } },
                 SimilarityMetricType.L2,
-                limit: 2);
+                limit: 5);
             searchResult.DebugJsonWriteLine();
         }
 
         private async Task VQuery(MilvusCollection collection)
         {
-            //List<string> search_output_fields = new() { "book_id" };
-            //List<List<float>> search_vectors = new() { new() { 0.1f, 0.2f } };
-            //SearchResults searchResult = await collection.SearchAsync(
-            //    "book_intro",
-            //    new ReadOnlyMemory<float>[] { new[] { 0.1f, 0.2f } },
-            //    SimilarityMetricType.L2,
-            //    limit: 2);
-
             // Query
             string expr = "book_id in [2,4,6,8,10,12]";
 
