@@ -1,4 +1,6 @@
 ﻿using Milvus.Client;
+
+using OmniCode.Util;
 namespace Milvus.Tests
 {
     [TestClass()]
@@ -46,6 +48,54 @@ namespace Milvus.Tests
             float[] embFunc(string q)
                => [Random.Next(), 2, 3, 4, 5, Random.Next()];
 
+        }
+
+        private static float[] embFunc(string q)
+           => [new Random().Next(), 2, 3, 4, 5, new Random().Next()];
+        [TestMethod]
+        public async Task VDB_Access()
+        {
+            var db = new Milvus.ClientProfile("192.168.9.8", 19530, false).BuildClient();
+            //檢查連線是否正常
+            await db.IsHealthyAsync();
+            var clname = await db.ListCollectionsAsync();
+            clname.ToList().ForEach(x => x.Name.DebugWriteLine());
+            var r = db.GetCollection("book");
+            //.SearchAndQueryResultsAsync("book_intro", "book_id", "book_name", embFunc("txt"),10);
+            //   r.DebugJsonWriteLine();
+            await searchQuery(r);
+
+
+        }
+
+        private async Task searchQuery(MilvusCollection collection)
+        {
+            List<string> search_output_fields = new() { "book_id" };
+            List<List<float>> search_vectors = new() { new() { 0.1f, 0.2f } };
+            SearchResults searchResult = await collection.SearchAsync(
+                "book_intro",
+                new ReadOnlyMemory<float>[] { new[] { 0.1f, 0.2f } },
+                SimilarityMetricType.L2,
+                limit: 2);
+
+            // Query
+            string expr = "book_id in [2,4,6,8]";
+
+            QueryParameters queryParameters = new();
+            queryParameters.OutputFields.Add("book_id");
+            queryParameters.OutputFields.Add("word_count");
+
+            IReadOnlyList<FieldData> queryResult = await collection.QueryAsync(
+                expr,
+                queryParameters);
+
+            queryResult.ToList().ForEach(x =>
+            {
+                //  Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(x));
+                System.Text.Json.JsonSerializer.Serialize(x).DebugWriteLine();
+
+
+            });
         }
     }
 }
